@@ -148,7 +148,7 @@ render_india_map <- function(results, X, low_confidence = character(0),
   # on the map in grey (Closeness and Rank are NA for them).
   res <- results[match(map_data$State, results$State), ]
   included <- !is.na(res$Closeness)
-  cols <- rep("#E0DCD5", nrow(res))
+  cols <- rep("#E5E7EB", nrow(res))
   cols[included] <- closeness_colours(res$Closeness[included])
   view <- sprintf("0 0 %s %s", map_data$ViewW[1], map_data$ViewH[1])
   tag <- htmltools::tag
