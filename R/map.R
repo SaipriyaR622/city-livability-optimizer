@@ -13,7 +13,7 @@
 MAP_PATH <- file.path("data", "map", "india_map_paths.csv")
 
 # Light -> dark ramp: darker = closer to the user's ideal = better match.
-MAP_RAMP <- c("#EEF1FB", "#BFC8F5", "#7C8CE6", "#4B3FA8", "#2A1F6B")
+MAP_RAMP <- c("#F5F5F5", "#CFCFCF", "#9A9A9A", "#5E5E5E", "#262626")
 
 #' Read the State/UT outlines.
 #' @param path CSV written by data_extraction/build_map_paths.py.
@@ -71,7 +71,7 @@ india_map_assets <- function() {
 .ilm-map svg{width:100%;height:auto;display:block}
 .ilm-map .ilm-state{cursor:pointer;transition:filter .15s,stroke-width .15s}
 .ilm-map path.ilm-state{stroke:#fff;stroke-width:1.1;fill-rule:evenodd}
-.ilm-map path.ilm-low{stroke:#374151;stroke-width:1.7;stroke-dasharray:5 3}
+.ilm-map path.ilm-low{stroke:#7A7A7A;stroke-width:1.7;stroke-dasharray:5 3}
 .ilm-map circle.ilm-state{stroke:#fff;stroke-width:2}
 .ilm-map .ilm-hover{filter:brightness(.88);stroke:#111827 !important;stroke-width:2.2 !important}
 .ilm-map .ilm-selected{stroke:#111827 !important;stroke-width:3 !important}
@@ -82,16 +82,16 @@ india_map_assets <- function() {
 .ilm-legend .ilm-grad{height:12px;border-radius:6px;margin:4px 0}
 .ilm-legend .ilm-ends{display:flex;justify-content:space-between}
 .ilm-legend .ilm-note{margin-top:6px;font-size:12px;color:#6b7280}
-#ilm-tip{position:fixed;display:none;z-index:9999;pointer-events:none;background:#1f2937;color:#f9fafb;
- padding:10px 12px;border-radius:10px;font:13px/1.35 sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);min-width:210px}
-#ilm-tip .ilm-title{font-weight:700;font-size:14px}#ilm-tip em{font-style:normal;color:#fcd34d;margin-left:4px}
-#ilm-tip .ilm-sub{color:#cbd5e1;margin-bottom:6px}
+#ilm-tip{position:fixed;display:none;z-index:9999;pointer-events:none;background:#1B1B1B;color:#F2F2F2;border:1px solid rgba(255,255,255,.12);
+ padding:12px 14px;border-radius:10px;font:14px/1.4 Jost,system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);min-width:210px}
+#ilm-tip .ilm-title{font-weight:700;font-size:14px}#ilm-tip em{font-style:normal;color:#FFFFFF;margin-left:4px}
+#ilm-tip .ilm-sub{color:#A6A6A6;margin-bottom:6px}
 #ilm-tip .ilm-row{display:flex;align-items:center;gap:6px;margin:2px 0}
 #ilm-tip .ilm-row span:first-child{width:84px}
-#ilm-tip .ilm-bar{flex:1;height:6px;background:#475569;border-radius:3px;overflow:hidden}
-#ilm-tip .ilm-bar i{display:block;height:100%;background:#a5b4fc}
+#ilm-tip .ilm-bar{flex:1;height:6px;background:#333;border-radius:3px;overflow:hidden}
+#ilm-tip .ilm-bar i{display:block;height:100%;background:#E6E6E6}
 #ilm-tip .ilm-row b{width:34px;text-align:right}
-#ilm-tip .ilm-warn{margin-top:6px;color:#fca5a5;font-size:12px}
+#ilm-tip .ilm-warn{margin-top:6px;color:#D59A8A;font-size:12px}
 )"
   js <- r"(
 (function(){
@@ -148,7 +148,7 @@ render_india_map <- function(results, X, low_confidence = character(0),
   # on the map in grey (Closeness and Rank are NA for them).
   res <- results[match(map_data$State, results$State), ]
   included <- !is.na(res$Closeness)
-  cols <- rep("#E5E7EB", nrow(res))
+  cols <- rep("#E0DCD5", nrow(res))
   cols[included] <- closeness_colours(res$Closeness[included])
   view <- sprintf("0 0 %s %s", map_data$ViewW[1], map_data$ViewH[1])
   tag <- htmltools::tag
@@ -181,7 +181,7 @@ render_india_map <- function(results, X, low_confidence = character(0),
                                        fill = cols[i], class = "ilm-state"),
                                   attrs(i))))
   })
-  medal <- c("#FCD34D", "#D1D5DB", "#F59E0B")
+  medal <- c("#FFFFFF", "#E6E6E6", "#CCCCCC")
   top3 <- which(res$Rank <= 3)
   # Badges are always centred on the State/UT's own anchor point (never offset),
   # so a badge can never appear on top of a neighbouring State/UT.

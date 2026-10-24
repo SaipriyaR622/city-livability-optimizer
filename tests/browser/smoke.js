@@ -18,7 +18,7 @@ const answerAll = async (p, values) => { for (const v of values) { await p.click
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); }); p.on('pageerror', e => errors.push(String(e)));
   await p.goto(URL); await p.waitForSelector('.hero h1'); await idle(p);
 
-  ok('welcome: original title and the custom logo', (await p.textContent('.hero h1')) === 'City Livability Optimizer' &&
+  ok('welcome: original title and the custom logo', (await p.textContent('.hero h1')) === 'State Livability Optimizer' &&
      (await p.getAttribute('.hero .logo img', 'src')) === 'img/logo.svg' && await p.$eval('.hero .logo img', i => i.complete && i.naturalWidth > 0));
   ok('welcome: logo is also the browser-tab icon', (await p.getAttribute('link[rel="icon"]', 'href')) === 'img/logo.svg');
   ok('welcome: original layout (Start button, three presets, skip link)', (await p.$$('.btn-main')).length === 1 &&
