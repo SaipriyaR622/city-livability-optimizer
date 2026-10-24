@@ -158,7 +158,7 @@ build_report_html <- function(rec, X, low_conf = character(0), source = "questio
 
   body <- tg$body(
     tg$h1("My Livability Report"),
-    tg$p(class = "sub", sprintf("City Livability Optimizer | %s | generated %s", mode, format(Sys.Date(), "%d %B %Y"))),
+    tg$p(class = "sub", sprintf("State Livability Optimizer | %s | generated %s", mode, format(Sys.Date(), "%d %B %Y"))),
     tg$p(class = "note", SCOPE_NOTE),
     tg$h2("1. My priorities"),
     lapply(seq_len(nrow(wt)), function(i) {

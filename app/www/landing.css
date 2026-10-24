@@ -1,0 +1,128 @@
+/* ==============================================================================
+   Welcome screen - full-screen photo slideshow with calligraphy title.
+   Loaded after style.css; everything here is scoped to .lp (the welcome screen),
+   so the questionnaire and results screens are not affected.
+   Fonts are bundled in www/fonts/ (SIL Open Font License), so the page also
+   works offline.
+   ============================================================================== */
+
+@font-face{font-family:"Great Vibes";font-style:normal;font-weight:400;font-display:swap;
+  src:url("fonts/great-vibes-latin-400-normal.woff2") format("woff2");}
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:500;font-display:swap;
+  src:url("fonts/cormorant-garamond-latin-500-normal.woff2") format("woff2");}
+@font-face{font-family:"Cormorant Garamond";font-style:italic;font-weight:500;font-display:swap;
+  src:url("fonts/cormorant-garamond-latin-500-italic.woff2") format("woff2");}
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:600;font-display:swap;
+  src:url("fonts/cormorant-garamond-latin-600-normal.woff2") format("woff2");}
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:700;font-display:swap;
+  src:url("fonts/cormorant-garamond-latin-700-normal.woff2") format("woff2");}
+
+.lp{
+  --lp-text:#ffffff;
+  --lp-soft:rgba(255,248,236,.88);
+  --lp-gold-1:#F6D27A; --lp-gold-2:#D9A441; --lp-gold-3:#B07A1E;
+  --lp-glass:rgba(22,14,8,.38); --lp-glass-hover:rgba(40,26,14,.50);
+  --lp-line:rgba(255,255,255,.28);
+  font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  color:var(--lp-text);
+  min-height:calc(100vh - 68px);
+  display:flex;align-items:center;justify-content:center;
+  /* .screen normally animates with a transform; a transform would break the
+     position:fixed background, so the content animates instead (below). */
+  animation:none !important;
+}
+
+/* ---- background slideshow -------------------------------------------------- */
+.lp-bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:#1b130d;}
+.lp-slide{position:absolute;inset:0;background-size:cover;background-position:center;
+  opacity:0;transform:scale(1);transition:opacity 1.6s ease;will-change:opacity,transform;}
+.lp-slide.active{opacity:1;animation:lpKenBurns 8s ease-out forwards;}
+@keyframes lpKenBurns{from{transform:scale(1)}to{transform:scale(1.08)}}
+/* Fallback when no photos have been added yet: warm heritage gradient. */
+.lp-slide.lp-fallback{background:
+  radial-gradient(1200px 700px at 20% 15%,#8a3b2f 0%,transparent 60%),
+  radial-gradient(1000px 700px at 85% 85%,#1f5d4e 0%,transparent 60%),
+  linear-gradient(135deg,#2a1810,#3b2414 50%,#14231f);}
+.lp-shade{position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(ellipse 70% 60% at 50% 45%,rgba(10,6,3,.55) 0%,rgba(10,6,3,.25) 70%,transparent 100%),
+  linear-gradient(180deg,rgba(10,6,3,.45) 0%,rgba(10,6,3,.15) 35%,rgba(10,6,3,.35) 70%,rgba(10,6,3,.75) 100%);}
+.lp-dots{position:fixed;right:28px;bottom:26px;z-index:2;display:flex;gap:10px;padding:8px 12px;border-radius:999px;
+  background:rgba(10,6,3,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+.lp-dots i{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.45);transition:all .4s ease;}
+.lp-dots i.active{width:26px;background:var(--lp-gold-1);}
+
+/* ---- content ------------------------------------------------------------- */
+.lp-content{position:relative;z-index:1;width:100%;max-width:780px;margin:0 auto;padding:20px 16px 70px;
+  text-align:center;animation:lpRise .9s ease both;}
+@keyframes lpRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+.lp .hero{padding:0;text-align:center;}
+.lp .hero .logo{display:inline-flex;align-items:center;justify-content:center;width:74px;height:74px;border-radius:50%;
+  background:rgba(255,255,255,.14);border:1px solid var(--lp-line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:0 8px 26px rgba(0,0,0,.3);}
+.lp .hero .logo img{width:46px;height:46px;}
+.lp .hero h1{font-family:"Great Vibes","Brush Script MT",cursive;font-weight:400;color:var(--lp-text);
+  font-size:clamp(50px,7.4vw,104px);line-height:1.15;margin:14px -120px 10px;letter-spacing:.5px;padding:0 .15em;
+  text-shadow:0 2px 4px rgba(0,0,0,.35),0 10px 40px rgba(0,0,0,.45);}
+.lp .hero p.lead{color:var(--lp-soft);font-weight:500;font-size:clamp(19px,2.3vw,23px);line-height:1.5;
+  max-width:640px;margin:0 auto 30px;text-shadow:0 1px 12px rgba(0,0,0,.6);}
+
+/* Start button: warm brass/gold, like the old temple doors */
+.lp .btn-main{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:23px;letter-spacing:.04em;
+  color:#2b1a06;padding:13px 46px;border-radius:999px;
+  background:linear-gradient(135deg,var(--lp-gold-1) 0%,var(--lp-gold-2) 55%,var(--lp-gold-3) 100%);
+  box-shadow:0 10px 30px rgba(217,164,65,.35),inset 0 1px 0 rgba(255,255,255,.55);}
+.lp .btn-main:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(246,210,122,.55),inset 0 1px 0 rgba(255,255,255,.6);}
+.lp .btn-main:focus-visible,.lp .preset-btn:focus-visible,.lp .btn-ghost:focus-visible,.lp details.how summary:focus-visible{
+  outline:2px solid var(--lp-gold-1);outline-offset:3px;}
+
+/* presets: frosted glass */
+.lp .preset-section{margin:40px auto 0;max-width:740px;}
+.lp .preset-section h3{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:500;
+  font-size:21px;color:var(--lp-soft);margin-bottom:14px;text-shadow:0 1px 10px rgba(0,0,0,.6);}
+.lp .preset-row{gap:14px;}
+.lp .preset-btn{background:var(--lp-glass);border:1px solid var(--lp-line);border-radius:18px;
+  padding:14px 22px;min-width:210px;text-align:left;color:var(--lp-text);
+  -webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);
+  box-shadow:0 8px 26px rgba(0,0,0,.25);}
+.lp .preset-btn:hover{background:var(--lp-glass-hover);border-color:rgba(246,210,122,.75);
+  transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.35);}
+.lp .preset-btn b{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:21px;color:var(--lp-text);letter-spacing:.01em;}
+.lp .preset-btn span{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:16px;color:var(--lp-soft);}
+
+/* skip link */
+.lp .skip-link{margin-top:28px;}
+.lp .btn-ghost{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:19px;color:var(--lp-soft);
+  background:transparent;border-radius:0;padding:4px 2px;border-bottom:1px solid rgba(255,255,255,.35);
+  text-shadow:0 1px 10px rgba(0,0,0,.6);}
+.lp .btn-ghost:hover{background:transparent;color:#fff;border-bottom-color:var(--lp-gold-1);}
+
+/* How does this work? */
+.lp details.how{max-width:640px;margin:30px auto 0;text-align:left;background:var(--lp-glass);
+  border:1px solid var(--lp-line);border-radius:16px;padding:14px 20px;box-shadow:0 8px 26px rgba(0,0,0,.25);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.lp details.how summary{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:20px;color:var(--lp-text);
+  list-style:none;display:flex;align-items:center;gap:10px;}
+.lp details.how summary::-webkit-details-marker{display:none;}
+.lp details.how summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--lp-gold-1);
+  border-bottom:2px solid var(--lp-gold-1);transform:rotate(-45deg);transition:transform .25s ease;flex:none;}
+.lp details.how[open] summary::before{transform:rotate(45deg);}
+.lp details.how p{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:18px;line-height:1.5;
+  color:var(--lp-soft);margin:10px 0 0;}
+.lp details.how[open] p{animation:lpRise .35s ease both;}
+
+/* small screens */
+@media (max-width:900px){.lp .hero h1{margin-left:0;margin-right:0;}}
+@media (max-width:560px){
+  .lp-dots{right:50%;transform:translateX(50%);bottom:14px;}
+  .lp-content{padding:24px 6px 64px;}
+  .lp .preset-btn{min-width:0;width:100%;}
+  .lp .btn-main{font-size:21px;padding:12px 38px;}
+}
+
+/* reduced motion: no zoom, gentler fades */
+@media (prefers-reduced-motion:reduce){
+  .lp-slide.active{animation:none;}
+  .lp-slide{transition:opacity 2.5s ease;}
+  .lp-content{animation:none;}
+}

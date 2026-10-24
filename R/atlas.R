@@ -18,11 +18,11 @@ SHORT_NAMES <- c("Dadra and Nagar Haveli and Daman and Diu" = "DNH & DD",
                  "Madhya Pradesh" = "Madhya P.", "Uttar Pradesh" = "Uttar P.")
 short_name <- function(x) ifelse(x %in% names(SHORT_NAMES), SHORT_NAMES[x], x)
 
-# Point styles: other places small and soft, your top 3 in the brand colour,
-# selected places larger in amber. Dashed outline = limited or estimated data.
-TC_STYLE <- list(other = list(r = 4.5, fill = "#C7CDF3", stroke = "#ffffff", sw = 1),
-                 top = list(r = 6.5, fill = "#4B3FA8", stroke = "#ffffff", sw = 1.5),
-                 selected = list(r = 8, fill = "#F59E0B", stroke = "#1f2937", sw = 2))
+# Point styles: other places small and dark grey, your top 3 in light grey,
+# selected places larger in white. Dashed outline = limited or estimated data.
+TC_STYLE <- list(other = list(r = 4.5, fill = "#4D4D4D", stroke = "#161616", sw = 1),
+                 top = list(r = 6.5, fill = "#BDBDBD", stroke = "#161616", sw = 1.5),
+                 selected = list(r = 8, fill = "#FFFFFF", stroke = "#FFFFFF", sw = 3))
 
 #' Greedy placement of direct labels so they do not overlap (approximate text
 #' boxes). Tries right of the point, then left, then shifted up or down.
@@ -67,22 +67,22 @@ render_tradeoff_plot <- function(cd, click_input = "cmp_click") {
 
   grid <- lapply(c(0, 0.25, 0.5, 0.75, 1), function(v) {
     tag("g", list(class = "tc-grid",
-                  tag("line", list(x1 = px(0), x2 = px(1), y1 = py(v), y2 = py(v), stroke = "#EEF0F6")),
-                  tag("line", list(x1 = px(v), x2 = px(v), y1 = py(0), y2 = py(1), stroke = "#EEF0F6")),
-                  tag("text", list(x = px(0) - 8, y = py(v), class = "tc-tick", `font-size` = 11, fill = "#9CA3AF",
+                  tag("line", list(x1 = px(0), x2 = px(1), y1 = py(v), y2 = py(v), stroke = "#262626")),
+                  tag("line", list(x1 = px(v), x2 = px(v), y1 = py(0), y2 = py(1), stroke = "#262626")),
+                  tag("text", list(x = px(0) - 8, y = py(v), class = "tc-tick", `font-size` = 11, fill = "#777777",
                                    `text-anchor` = "end", `dominant-baseline` = "central", format(v))),
-                  tag("text", list(x = px(v), y = py(0) + 17, class = "tc-tick", `font-size` = 11, fill = "#9CA3AF",
+                  tag("text", list(x = px(v), y = py(0) + 17, class = "tc-tick", `font-size` = 11, fill = "#777777",
                                    `text-anchor` = "middle", format(v)))))
   })
   axes <- list(
-    tag("line", list(x1 = px(0), x2 = px(1), y1 = py(0), y2 = py(0), stroke = "#9CA3AF")),
-    tag("line", list(x1 = px(0), x2 = px(0), y1 = py(0), y2 = py(1), stroke = "#9CA3AF")),
+    tag("line", list(x1 = px(0), x2 = px(1), y1 = py(0), y2 = py(0), stroke = "#555555")),
+    tag("line", list(x1 = px(0), x2 = px(0), y1 = py(0), y2 = py(1), stroke = "#555555")),
     tag("text", list(x = px(0.5), y = H - 14, class = "tc-axis", `font-size` = 13, `font-weight` = 700,
-                     fill = "#1f2937", `text-anchor` = "middle", paste(cd$x_title, "→ better"))),
+                     fill = "#E6E6E6", `text-anchor` = "middle", paste(cd$x_title, "→ better"))),
     tag("text", list(x = 18, y = py(0.5), class = "tc-axis", `font-size` = 13, `font-weight` = 700,
-                     fill = "#1f2937", `text-anchor` = "middle", transform = sprintf("rotate(-90 18 %s)", py(0.5)),
+                     fill = "#E6E6E6", `text-anchor` = "middle", transform = sprintf("rotate(-90 18 %s)", py(0.5)),
                      paste(cd$y_title, "→ better"))),
-    tag("text", list(x = px(1), y = py(1) - 12, class = "tc-corner", `font-size` = 11.5, fill = "#6b7280",
+    tag("text", list(x = px(1), y = py(1) - 12, class = "tc-corner", `font-size` = 11.5, fill = "#A6A6A6",
                      `text-anchor` = "end", "Better on both ↗")))
 
   kind <- ifelse(p$Selected, "selected", ifelse(p$Top3, "top", "other"))
@@ -99,7 +99,7 @@ render_tradeoff_plot <- function(cd, click_input = "cmp_click") {
                    if (length(warn)) sprintf("<div class='ilm-warn'>&#9888; %s</div>", paste(warn, collapse = "; ")) else "",
                    if (p$Selected[i]) "Click to remove from your comparison" else "Click to add to your comparison")
     tag("circle", list(cx = sprintf("%.1f", px(p$X[i])), cy = sprintf("%.1f", py(p$Y[i])), r = s$r,
-                       fill = s$fill, stroke = if (flag) "#374151" else s$stroke, `stroke-width` = s$sw,
+                       fill = s$fill, stroke = if (flag) "#BDBDBD" else s$stroke, `stroke-width` = s$sw,
                        `stroke-dasharray` = if (flag) "2.5 2" else NULL,
                        class = paste("ilm-state tc-pt", paste0("is-", kind[i])), `data-state` = p$State[i],
                        `data-tip` = tip, `data-click-input` = click_input, tabindex = "0", role = "button",
@@ -116,14 +116,14 @@ render_tradeoff_plot <- function(cd, click_input = "cmp_click") {
     labels <- lapply(seq_len(nrow(lab)), function(i) {
       tag("text", list(x = sprintf("%.1f", pos$x[i]), y = sprintf("%.1f", pos$y[i]), class = "tc-label",
                        `font-size` = 11.5, `font-weight` = if (lab$Selected[i]) 800 else 600,
-                       fill = if (lab$Selected[i]) "#92400E" else "#1f2937", stroke = "#ffffff", `stroke-width` = 3,
+                       fill = if (lab$Selected[i]) "#FFFFFF" else "#CFCFCF", stroke = "#161616", `stroke-width` = 3,
                        `paint-order` = "stroke", `text-anchor` = pos$anchor[i], `pointer-events` = "none",
                        `aria-hidden` = "true", txt[i]))
     })
   }
 
   svg <- tag("svg", list(viewBox = sprintf("0 0 %d %d", W, H), class = "tc-svg", role = "group",
-                         `font-family` = "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
+                         `font-family` = "Jost, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
                          `aria-label` = sprintf("Scatter plot of %s against %s for %d States/UTs. Each point can be focused and selected with Enter.",
                                                 cd$y, cd$x, nrow(p)),
                          grid, axes, tag("g", pts), tag("g", labels)))
@@ -139,7 +139,7 @@ render_tradeoff_plot <- function(cd, click_input = "cmp_click") {
                         swatch(TC_STYLE$top$fill, TC_STYLE$top$fill, "Your top 3"),
                         swatch(TC_STYLE$selected$fill, TC_STYLE$selected$stroke, "Selected"),
                         swatch(TC_STYLE$other$fill, TC_STYLE$other$fill, "Other places"),
-                        swatch("#ffffff", "#374151", "Limited or estimated data", dash = TRUE)),
+                        swatch("#161616", "#BDBDBD", "Limited or estimated data", dash = TRUE)),
     if (length(cd$not_plotted)) htmltools::tags$p(class = "note", sprintf("Not plotted (missing score): %s.", paste(cd$not_plotted, collapse = ", "))))
 }
 
@@ -149,7 +149,7 @@ atlas_assets <- function() {
   htmltools::tags$style(htmltools::HTML(paste0(
     ".tc-svg{width:100%;max-width:680px;height:auto;display:block;margin:0 auto}",
     ".tc-chart .tc-pt{cursor:pointer;transition:r .12s}",
-    ".tc-chart .ilm-hover,.tc-chart .tc-pt:focus{stroke:#111827 !important;stroke-width:2.4px !important;outline:none}",
-    ".tc-legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:12.5px;color:#4b5563;margin-top:4px}",
+    ".tc-chart .ilm-hover,.tc-chart .tc-pt:focus{stroke:#FFFFFF !important;stroke-width:2.4px !important;outline:none}",
+    ".tc-legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:12.5px;color:#A6A6A6;margin-top:4px}",
     ".tc-key{display:inline-flex;align-items:center;gap:6px}")))
 }

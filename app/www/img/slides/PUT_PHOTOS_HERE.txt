@@ -1,0 +1,2 @@
+Put your photos here named slide1.jpg, slide2.jpg ... slide5.jpg
+(.jpeg, .png and .webp also work). Then open index.html again.

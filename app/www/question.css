@@ -1,0 +1,83 @@
+/* ==============================================================================
+   Questionnaire - one full-screen photo per criterion, with a minimal dark card.
+   Scoped to .qz (the question screen), so no other screen is affected.
+   Fonts (Great Vibes, Cormorant Garamond) are declared in landing.css.
+   ============================================================================== */
+
+.qz.fc-wrap{max-width:none;margin:0;}
+.qz{position:relative;min-height:calc(100vh - 68px);display:flex;align-items:center;justify-content:center;
+  /* no transform animation on this element: it would break the fixed background */
+  animation:none !important;color:#fff;}
+
+/* ---- background ---------------------------------------------------------------- */
+.qz-bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:#0d0d0d;}
+.qz-photo{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;}
+.qz-photo.active{opacity:1;animation:qzPhotoIn 1s ease both,qzDrift 14s ease-out forwards;}
+@keyframes qzPhotoIn{from{opacity:0}to{opacity:1}}
+@keyframes qzDrift{from{transform:scale(1.06)}to{transform:scale(1)}}
+.qz-photo.qz-fallback{background:
+  radial-gradient(900px 600px at 25% 20%,#2b2b2b 0%,transparent 60%),
+  radial-gradient(900px 600px at 80% 90%,#1f1f1f 0%,transparent 60%),#121212;}
+.qz-shade{position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(ellipse 60% 55% at 50% 50%,rgba(0,0,0,.25),transparent 75%),
+  linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 35%,rgba(0,0,0,.45) 100%);}
+
+/* ---- content ------------------------------------------------------------------- */
+.qz-inner{position:relative;z-index:1;width:100%;max-width:700px;margin:0 auto;padding:28px 16px 40px;
+  animation:qzRise .32s ease both;}
+@keyframes qzRise{from{opacity:.4;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.qz .fc-progress{display:flex;justify-content:space-between;font-family:"Cormorant Garamond",Georgia,serif;
+  font-weight:600;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.85);
+  margin-bottom:10px;text-shadow:0 1px 8px rgba(0,0,0,.6);font-variant-numeric:lining-nums;}
+.qz .fc-bar{height:3px;background:rgba(255,255,255,.22);border-radius:999px;overflow:hidden;margin-bottom:26px;}
+.qz .fc-bar i{display:block;height:100%;background:#fff;border-radius:999px;transition:width .45s ease;}
+
+/* the card: plain, near-black, minimal */
+.qz .flashcard{background:rgba(18,18,18,.93);border:1px solid rgba(255,255,255,.10);border-radius:26px;
+  padding:38px 32px 30px;text-align:center;color:#fff;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  box-shadow:0 30px 80px rgba(0,0,0,.45);}
+.qz .fc-icon{font-size:40px;line-height:1;margin-bottom:6px;filter:grayscale(1) brightness(1.7);opacity:.85;}
+.qz .fc-title{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:clamp(22px,3vw,28px);
+  line-height:1.2;color:rgba(255,255,255,.9);margin:0 0 14px;letter-spacing:.01em;}
+.qz .fc-title > span{color:inherit;}
+.qz .qz-name{display:block;font-family:"Great Vibes","Brush Script MT",cursive;font-weight:400;color:#fff;
+  font-size:clamp(54px,8vw,80px);line-height:1.15;margin:2px 0 0;}
+.qz .qz-sub{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:clamp(17px,2.2vw,20px);
+  color:rgba(255,255,255,.62);margin:0 0 4px;}
+.qz .fc-hint{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:17.5px;line-height:1.5;
+  color:rgba(255,255,255,.70);max-width:520px;margin:0 auto 28px;}
+
+/* 1-5 scale */
+.qz .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.qz .scale-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:16px;
+  padding:14px 4px 12px;color:#fff;transition:background .15s,border-color .15s,transform .15s;}
+.qz .scale-btn b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:32px;line-height:1;
+  color:#fff;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
+.qz .scale-btn small{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:14px;
+  color:rgba(255,255,255,.62);margin-top:5px;line-height:1.15;}
+.qz .scale-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);transform:translateY(-3px);}
+.qz .scale-btn.selected{background:#fff;border-color:#fff;box-shadow:0 10px 26px rgba(0,0,0,.35);}
+.qz .scale-btn.selected b{color:#111;} .qz .scale-btn.selected small{color:#555;}
+.qz .scale-btn:focus-visible{outline:2px solid #fff;outline-offset:3px;}
+
+/* Back / Keep this answer */
+.qz .fc-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+.qz .btn-ghost,.qz .btn-soft{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:19px;
+  border-radius:999px;padding:8px 22px;transition:background .15s,color .15s,transform .15s;}
+.qz .btn-ghost{background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.35);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+.qz .btn-ghost:hover{background:rgba(0,0,0,.55);color:#fff;}
+.qz .btn-soft{background:#fff;color:#111;border:1px solid #fff;}
+.qz .btn-soft:hover{background:#eaeaea;color:#000;transform:translateY(-1px);}
+
+@media (max-width:560px){
+  .qz .flashcard{padding:28px 16px 22px;}
+  .qz .scale{gap:6px;}
+  .qz .scale-btn small{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  .qz-photo.active{animation:qzPhotoIn .6s ease both;}
+  .qz-inner{animation:none;}
+}

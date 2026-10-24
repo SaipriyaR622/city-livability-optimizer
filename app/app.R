@@ -52,11 +52,26 @@ NEWS_STATE <- new.env()
 PRESET_BLURB <- c("Economy, connectivity and housing first",
                   "Education, safety and health first",
                   "Health, environment and safety first")
+# Welcome-screen background photos: every image in www/img/slides/ is shown in
+# file-name order (slide1.jpg, slide2.jpg, ...). Add, remove or replace photos
+# there without touching the code. With no photos, a plain gradient is shown.
+WWW_DIR <- if (dir.exists("www")) "www" else file.path("app", "www")
+LANDING_SLIDES <- sort(list.files(file.path(WWW_DIR, "img", "slides"),
+                                  pattern = "\\.(jpe?g|png|webp)$", ignore.case = TRUE))
+# Questionnaire background photos: one per criterion in www/img/questions/,
+# named after it (education.jpg, safety.jpg, health.jpg, housing.jpg,
+# economy.jpg, environment.jpg, connectivity.jpg). A missing photo shows a
+# plain dark background instead.
+QUESTION_BG <- vapply(CRITERIA, function(cr) {
+  f <- list.files(file.path(WWW_DIR, "img", "questions"),
+                  pattern = sprintf("^%s\\.(jpe?g|png|webp)$", tolower(cr)), ignore.case = TRUE)
+  if (length(f)) f[1] else ""
+}, character(1))
 # Verdicts are positions among the places ranked (see priority_breakdown()).
 VERDICT_CLASS <- c("Top third" = "strong", "Middle third" = "moderate",
                    "Bottom third" = "short")
-VERDICT_COLOUR <- c("Top third" = "#10B981", "Middle third" = "#F59E0B",
-                    "Bottom third" = "#EF4444")
+VERDICT_COLOUR <- c("Top third" = "#9CC3A4", "Middle third" = "#D2BE8C",
+                    "Bottom third" = "#D59A8A")
 
 # ---- Small UI helpers --------------------------------------------------------
 # A button that sends one click event to the server under input$<id>. The random
@@ -67,11 +82,30 @@ ui_button <- function(id, label, class) {
               label)
 }
 
+landing_background <- function() {
+  slides <- if (length(LANDING_SLIDES)) {
+    lapply(seq_along(LANDING_SLIDES), function(i) {
+      div(class = paste("lp-slide", if (i == 1) "active"),
+          style = sprintf("background-image:url('img/slides/%s');", utils::URLencode(LANDING_SLIDES[i])))
+    })
+  } else {
+    list(div(class = "lp-slide lp-fallback active"))
+  }
+  tagList(
+    div(class = "lp-bg", `aria-hidden` = "true", slides, div(class = "lp-shade")),
+    if (length(LANDING_SLIDES) > 1)
+      div(class = "lp-dots", `aria-hidden` = "true",
+          lapply(seq_along(LANDING_SLIDES), function(i) tags$i(class = if (i == 1) "active")))
+  )
+}
+
 welcome_screen <- function() {
-  div(class = "screen",
+  div(class = "screen lp",
+      landing_background(),
+      div(class = "lp-content",
       div(class = "hero",
           div(class = "logo", tags$img(src = "img/logo.svg", alt = "", width = 64, height = 64)),
-          tags$h1("City Livability Optimizer"),
+          tags$h1("State Livability Optimizer"),
           tags$p(class = "lead",
                  "Find States and UTs that may suit your priorities. Answer 7 quick questions and get a personal top 3 out of 36, with reasons, trade-offs and data warnings. Based on State/UT-level indicators, not individual cities."),
           ui_button("start", HTML("Start &rarr;"), "btn-main")),
@@ -89,7 +123,7 @@ welcome_screen <- function() {
                    tags$summary("How does this work?"),
                    tags$p("You rate how important seven topics are to you. Your ratings become weights, and every State and UT is ",
                           "ranked by how close it comes to the best place for those weights, using State/UT-level indicators. ",
-                          "The method is explained in the app under How it works.")))
+                          "The method is explained in the app under How it works."))))
 }
 
 question_screen <- function(step, answers) {
@@ -101,18 +135,41 @@ question_screen <- function(step, answers) {
                 onclick = sprintf("Shiny.setInputValue('answer', {step: %d, value: %d}, {priority: 'event'})", step, v),
                 tags$b(v), tags$small(ANSWER_LABELS[v]))
   })
-  div(class = "screen fc-wrap",
+  # The label is shown in two styles (name in calligraphy, the part in brackets
+  # below it); the text itself is unchanged.
+  name <- sub(" \\(.*$", "", q$Label)
+  rest <- substring(q$Label, nchar(name) + 1)
+  div(class = "screen fc-wrap qz",
+      question_background(q$Criterion),
+      div(class = "qz-inner",
       div(class = "fc-progress", span(sprintf("Question %d of %d", step, nrow(QUESTIONS))),
           span(sprintf("%.0f%%", 100 * (step - 1) / nrow(QUESTIONS)))),
       div(class = "fc-bar", tags$i(style = sprintf("width:%.0f%%", 100 * (step - 1) / nrow(QUESTIONS)))),
       div(class = "flashcard",
           div(class = "fc-icon", HTML(q$Icon)),
-          tags$h2(class = "fc-title", "How important is ", tags$span(q$Label), " to you?"),
+          tags$h2(class = "fc-title", "How important is ",
+                  tags$span(tags$span(class = "qz-name", name),
+                            if (nzchar(rest)) tags$span(class = "qz-sub", rest)),
+                  " to you?"),
           tags$p(class = "fc-hint", q$Hint),
           div(class = "scale", buttons)),
       div(class = "fc-nav",
           ui_button("back", HTML("&larr; Back"), "btn-ghost"),
-          if (!is.na(current)) ui_button("keep_next", HTML("Keep this answer &rarr;"), "btn-soft")))
+          if (!is.na(current)) ui_button("keep_next", HTML("Keep this answer &rarr;"), "btn-soft"))))
+}
+
+# All seven photos are placed on the page (only the current one is visible), so
+# the browser loads them once and later questions switch instantly.
+question_background <- function(criterion) {
+  photos <- lapply(names(QUESTION_BG), function(cr) {
+    f <- QUESTION_BG[[cr]]
+    if (!nzchar(f)) return(NULL)
+    div(class = paste("qz-photo", if (cr == criterion) "active"),
+        style = sprintf("background-image:url('img/questions/%s');", utils::URLencode(f)))
+  })
+  div(class = "qz-bg", `aria-hidden` = "true",
+      if (!nzchar(QUESTION_BG[[criterion]])) div(class = "qz-photo qz-fallback active"),
+      photos, div(class = "qz-shade"))
 }
 
 why_row <- function(row, n) {
@@ -134,7 +191,8 @@ top_card <- function(rec, st) {
   gap <- names(which.max(w * (1 - rec$X[st, ])))
   gap_pos <- unname(rank(-rec$X[, gap], ties.method = "min")[st])
   badge <- coverage_badge(d, META, st)
-  div(class = "top-card",
+  medal_class <- if (row$Rank <= 3) paste0("tc-r", row$Rank) else ""
+  div(class = paste("top-card", medal_class),
       div(class = "tc-head",
           span(class = "medal", sprintf("#%d", row$Rank)),
           div(tags$h3(class = "tc-name", st), div(class = "tc-meta", STATE_TYPE[[st]]))),
@@ -281,19 +339,28 @@ news_panel <- function() {
       uiOutput("news"))
 }
 
+# A thin divider line in the sidebar between groups of tabs (no text).
+nav_sep <- function() nav_item(tags$hr(class = "nav-sep"))
+
+# Quiet decorative background behind the results (glow, dots, India outline).
+results_background <- function() div(class = "res-bg", `aria-hidden` = "true")
+
 results_screen <- function(exclude_now, answers = EQUAL_ANSWERS, top3 = character(0), axes = c("Safety", "Economy")) {
   tabs <- list(nav_panel("Top 3", uiOutput("top3")),
                nav_panel("What if?", whatif_panel(answers)),
                nav_panel("Compare", compare_panel(top3, axes)),
                nav_panel("Stability", stability_panel()),
-               nav_panel("Map", div(class = "panel-card", uiOutput("map_ui")), uiOutput("map_detail")),
+               nav_sep(),
+               nav_panel("Map", div(class = "panel-card map-card", uiOutput("map_ui")), uiOutput("map_detail")),
                nav_panel("What matters to you", uiOutput("weights")),
                nav_panel("Full ranking", uiOutput("ranking")),
                nav_panel("States & UTs", catalogue_panel()),
                if (news_enabled()) nav_panel("News", news_panel()),
+               nav_sep(),
                nav_panel("How it works", method_panel()),
                nav_panel("About and limits", about_panel()))
-  div(class = "screen",
+  div(class = "screen res",
+      results_background(),
       div(class = "result-head",
           div(tags$h2("Your livability matches"), uiOutput("mode_note")),
           div(class = "head-actions",
@@ -304,19 +371,25 @@ results_screen <- function(exclude_now, answers = EQUAL_ANSWERS, top3 = characte
           checkboxInput("exclude_low",
                         sprintf("Leave out places with limited data coverage (%s)", paste(LOW_CONF, collapse = ", ")),
                         value = exclude_now)),
-      do.call(navset_pill, c(list(id = "result_tabs"), Filter(Negate(is.null), tabs))))
+      div(class = "res-tabs",
+          do.call(navset_pill_list, c(list(id = "result_tabs", widths = c(2, 10), well = FALSE),
+                                      Filter(Negate(is.null), tabs)))))
 }
 
 # ---- User interface ----------------------------------------------------------
 ui <- page_fluid(
-  title = "City Livability Optimizer",
-  theme = bs_theme(version = 5, primary = "#4B3FA8",
-                   base_font = font_collection("system-ui", "Segoe UI", "Roboto",
-                                               "Helvetica Neue", "Arial", "sans-serif")),
+  title = "State Livability Optimizer",
+  theme = bs_theme(version = 5, bg = "#0E0E0E", fg = "#F2F2F2", primary = "#E6E6E6",
+                   base_font = font_collection("Jost", "Segoe UI", "system-ui", "Roboto",
+                                               "Helvetica Neue", "Arial", "sans-serif"),
+                   heading_font = font_collection("Jost", "Segoe UI", "system-ui", "sans-serif")),
   tags$head(tags$link(rel = "icon", type = "image/svg+xml", href = "img/logo.svg"),
             tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
             tags$link(rel = "stylesheet", type = "text/css", href = "features.css"),
-            india_map_assets(), atlas_assets(), tags$script(src = "table.js")),
+            tags$link(rel = "stylesheet", type = "text/css", href = "landing.css"),
+            tags$link(rel = "stylesheet", type = "text/css", href = "question.css"),
+            india_map_assets(), atlas_assets(), tags$script(src = "table.js"),
+            tags$script(src = "landing.js")),
   div(class = "app-shell", uiOutput("screen"))
 )
 
